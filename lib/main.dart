@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
     //点击弹窗
     return OKToast(
         //屏幕自适应
+        //dev
         child: ScreenUtilInit(
       //尺寸
       designSize: const Size(375, 831),
