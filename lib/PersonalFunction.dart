@@ -1,9 +1,9 @@
-class Function {
+class PersonalFunction {
   final String name;
   final String imageUrl;
 
-  const Function({
-    this.name,
-    this.imageUrl,
+  const PersonalFunction({
+    required this.name,
+    required this.imageUrl,
   });
 }

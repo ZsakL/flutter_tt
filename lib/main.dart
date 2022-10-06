@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_t/PersonalFunction.dart';
 import 'package:oktoast/oktoast.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'home.dart';
@@ -21,21 +22,27 @@ class MyApp extends StatelessWidget {
     return OKToast(
         //屏幕自适应
         child: ScreenUtilInit(
-          //尺寸
-          designSize: const Size(375, 831),
-          minTextAdapt: true,
-          splitScreenMode: true,
-          builder: (context, child) {
-            return MaterialApp(
-              debugShowCheckedModeBanner: false, // 不显示右上角的 debug
-              title: 'Flutter Demo',
-              theme: ThemeData(
-                primarySwatch: Colors.blue,
-              ),
-              home: const MinePage(title: '个人中心'),
-            );
+      //尺寸
+      designSize: const Size(375, 831),
+      minTextAdapt: true,
+      splitScreenMode: true,
+      builder: (context, child) {
+        return MaterialApp(
+          debugShowCheckedModeBanner: false,
+          // 不显示右上角的 debug
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            primarySwatch: Colors.blue,
+          ),
+          home: const MinePage(title: '个人中心'),
+          //注册路由表
+          routes: <String, WidgetBuilder>{
+            "mine_page": (context) => const MinePage(title: '个人中心'),
+            "home_page": (context) => const HomePage(),
           },
-        ));
+        );
+      },
+    ));
   }
 }
 
@@ -72,17 +79,23 @@ class _MinePageState extends State<MinePage> {
                   centerTitle: true,
                   leading: IconButton(
                     onPressed: () {
-                      // Navigator.pop(context);
+                      // Navigator.pop(context, "我是返回值"); //返回上一个路由的同时会带上一个返回参数
                       //跳转页面
                       // Navigator.push(
                       //     context, MaterialPageRoute(builder: (context) => const HomePage()));
                       //跳转并关闭当前页面
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => const HomePage()),
-                        (route) => false,
-                      );
+                      // Navigator.pushAndRemoveUntil(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //       builder: (context) => const HomePage()),
+                      //   (route) => false,
+                      // );
+
+                      //Navigator.pushNamed(BuildContext context, String routeName,{Object arguments})
+                      // 通过路由名来打开路由页，同时还可以传递参数
+                      //导航到新路由
+                      Navigator.pushNamed(context, "home_page");
+
                     },
                     color: const Color(0xFF333333),
                     icon: const Icon(
@@ -164,49 +177,64 @@ Widget buildFunction(BuildContext context) {
   );
 }
 
-Widget buildCell(String iconUrl, String imageName) {
-  return Material(
-      color: Colors.transparent,
-      child: Container(
-          padding: const EdgeInsets.fromLTRB(16.5, 0, 16.5, 0),
-          height: 50,
-          child: Ink(
-              color: Colors.white,
-              child: InkWell(
-                onTap: () {
-                  showToast('点击$imageName');
-                },
-                child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween, //左右两边对齐
-                    children: <Widget>[
-                      //left
-                      Row(
-                        children: <Widget>[
-                          Image(
-                            image: AssetImage(iconUrl),
-                            width: 29,
-                            height: 29,
+Widget buildCell(String imageName, String iconUrl, bool isShowLine) {
+  return Column(
+    children: [
+      Material(
+          color: Colors.transparent,
+          child: Container(
+              padding: const EdgeInsets.fromLTRB(16.5, 0, 16.5, 0),
+              height: 50.w,
+              child: Ink(
+                  color: Colors.white,
+                  child: InkWell(
+                    onTap: () {
+                      showToast('点击$imageName');
+                    },
+                    child:
+                        Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //左右两边对齐
+                            children: <Widget>[
+                          //left
+                          Row(
+                            children: <Widget>[
+                              Image(
+                                image: AssetImage(iconUrl),
+                                width: 29,
+                                height: 29,
+                              ),
+                              const SizedBox(width: 14.5),
+                              Text(
+                                imageName,
+                                style: const TextStyle(fontSize: 14),
+                              ),
+                            ],
                           ),
-                          const SizedBox(width: 14.5),
-                          Text(
-                            imageName,
-                            style: const TextStyle(fontSize: 14),
+                          //right
+                          const Icon(
+                            Icons.arrow_forward_ios_rounded,
+                            size: 17,
+                            color: Color(0xFFCDCEDF),
                           ),
-                        ],
-                      ),
-                      //right
-                      const Icon(
-                        Icons.arrow_forward_ios_rounded,
-                        size: 17,
-                        color: Color(0xFFCDCEDF),
-                      ),
-                    ]),
-              ))));
+                        ]),
+                  )))),
+      SizedBox(height: 7.w),
+      buildLine(isShowLine),
+    ],
+  );
 }
 
 //按钮列表
 Widget buildButtonList(BuildContext context) {
+  List<PersonalFunction> dataList = [
+    PersonalFunction(name: "个人信息", imageUrl: "images/icon_personal.png"),
+    PersonalFunction(name: "修改密码", imageUrl: "images/icon_change_password.png"),
+    PersonalFunction(name: "人脸录入", imageUrl: "images/icon_face_entry.png"),
+    PersonalFunction(name: "版本更新", imageUrl: "images/icon_update.png"),
+  ];
+
   return Container(
+    padding: EdgeInsets.only(top: 7.w),
     width: double.infinity,
     height: 241.w,
     // color: Colors.white,
@@ -223,28 +251,39 @@ Widget buildButtonList(BuildContext context) {
               spreadRadius: 2.0 //阴影扩散程度
               )
         ]),
-    child: Column(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        buildCell("images/icon_personal.png", "个人信息"),
-        buildLine(),
-        buildCell("images/icon_change_password.png", "修改密码"),
-        buildLine(),
-        buildCell("images/icon_face_entry.png", "人脸录入"),
-        buildLine(),
-        buildCell("images/icon_update.png", "版本更新"),
-      ],
-    ),
+    child: ListView.builder(
+        // scrollDirection: Axis.horizontal, //控制水平方向显示
+        physics: const NeverScrollableScrollPhysics(), //不允许滑动
+        itemCount: dataList.length, //告诉ListView总共有多少个cell
+        // itemExtent: 70.w,
+        itemBuilder: (BuildContext context, int index) {
+          bool isShowLine = dataList.length != index + 1;
+          return buildCell(
+              dataList[index].name, dataList[index].imageUrl, isShowLine);
+        }
+        // mainAxisAlignment: MainAxisAlignment.spaceAround,
+        // children: [
+        //   buildCell("images/icon_personal.png", "个人信息"),
+        //   buildLine(),
+        //   buildCell("images/icon_change_password.png", "修改密码"),
+        //   buildLine(),
+        //   buildCell("images/icon_face_entry.png", "人脸录入"),
+        //   buildLine(),
+        //   buildCell("images/icon_update.png", "版本更新"),
+        // ],
+        ),
   );
 }
 
 //分割线
-Widget buildLine() {
-  return Container(
-    height: 0.5,
-    color: const Color(0xFFF0F0F0),
-    margin: const EdgeInsets.fromLTRB(16.5, 0, 16.5, 0),
-  );
+Widget buildLine(bool isVisibility) {
+  return Visibility(
+      visible: isVisibility,
+      child: Container(
+        height: 0.5.w,
+        color: const Color(0xFFF0F0F0),
+        margin: const EdgeInsets.fromLTRB(16.5, 0, 16.5, 0),
+      ));
 }
 
 //签名
